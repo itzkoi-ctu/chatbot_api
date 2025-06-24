@@ -83,10 +83,13 @@ public CoinDto makeApiRequest(String currencyName) throws Exception {
     LOGGER.info("Making CoinGecko API request for currency: " + currencyName);
 
     HttpHeaders headers = new HttpHeaders();
-    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-    HttpEntity<String> entity = new HttpEntity<>(headers);
+    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114 Safari/537.36");
+    headers.set("Accept", "application/json"); // thêm dòng này để báo là bạn muốn JSON
+    headers.set("Accept-Encoding", "gzip");    // giúp nhận dạng chuẩn hơn
 
+    HttpEntity<String> entity = new HttpEntity<>(headers);
     RestTemplate restTemplate = new RestTemplate();
+
     ResponseEntity<Map> responseEntity;
     try {
         responseEntity = restTemplate.exchange(
