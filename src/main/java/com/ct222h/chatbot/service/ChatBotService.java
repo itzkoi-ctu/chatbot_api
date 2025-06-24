@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,47 +37,99 @@ public class ChatBotService implements IChatBotService {
         }
     }
 
-    public CoinDto makeApiRequest(String currencyName) throws Exception {
-        String url = coingeckoApiUrl + currencyName.toLowerCase();
-        LOGGER.info("Making CoinGecko API request for currency: " + currencyName);
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
-        ResponseEntity<Map> responseEntity;
-        try {
-            responseEntity = restTemplate.getForEntity(url, Map.class);
-        } catch (Exception e) {
-            throw new Exception("Failed to fetch data from CoinGecko for " + currencyName + ": " + e.getMessage());
-        }
-        Map<String, Object> responseBody = responseEntity.getBody();
+//    public CoinDto makeApiRequest(String currencyName) throws Exception {
+//        String url = coingeckoApiUrl + currencyName.toLowerCase();
+//        LOGGER.info("Making CoinGecko API request for currency: " + currencyName);
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+//        ResponseEntity<Map> responseEntity;
+//        try {
+//            responseEntity = restTemplate.getForEntity(url, Map.class);
+//        } catch (Exception e) {
+//            throw new Exception("Failed to fetch data from CoinGecko for " + currencyName + ": " + e.getMessage());
+//        }
+//        Map<String, Object> responseBody = responseEntity.getBody();
+//
+//        if (responseBody != null) {
+//            Map<String, Object> image = (Map<String, Object>) responseBody.get("image");
+//            Map<String, Object> marketData = (Map<String, Object>) responseBody.get("market_data");
+//
+//            CoinDto coinDto = new CoinDto();
+//            coinDto.setId((String) responseBody.get("id"));
+//            coinDto.setName((String) responseBody.get("name"));
+//            coinDto.setSymbol((String) responseBody.get("symbol"));
+//            coinDto.setImage((String) image.get("large"));
+//            coinDto.setCurrentPrice(convertToDouble(((Map<String, Object>) marketData.get("current_price")).get("usd")));
+//            coinDto.setMarketCap(convertToDouble(((Map<String, Object>) marketData.get("market_cap")).get("usd")));
+//            coinDto.setMarketCapRank(convertToDouble((Integer) marketData.get("market_cap_rank")));
+//            coinDto.setTotalVolume(convertToDouble(((Map<String, Object>) marketData.get("total_volume")).get("usd")));
+//            coinDto.setHigh24h(convertToDouble(((Map<String, Object>) marketData.get("high_24h")).get("usd")));
+//            coinDto.setLow24h(convertToDouble(((Map<String, Object>) marketData.get("low_24h")).get("usd")));
+//            coinDto.setPriceChange24h(convertToDouble(marketData.get("price_change_24h")));
+//            coinDto.setPriceChangePercentage24h(convertToDouble(marketData.get("price_change_percentage_24h")));
+//            coinDto.setMarketCapChange24h(convertToDouble(marketData.get("market_cap_change_24h")));
+//            coinDto.setMarketCapChangePercentage24h(convertToDouble(marketData.get("market_cap_change_percentage_24h")));
+//            coinDto.setCirculatingSupply(convertToDouble(marketData.get("circulating_supply")));
+//            coinDto.setTotalSupply(convertToDouble(marketData.get("total_supply")));
+//
+//            LOGGER.info("CoinGecko data for " + currencyName + ": " + new JSONObject(coinDto).toString());
+//            return coinDto;
+//        }
+//        throw new Exception("Coin not found: " + currencyName);
+//    }
+public CoinDto makeApiRequest(String currencyName) throws Exception {
+    String url = coingeckoApiUrl + currencyName.toLowerCase();
+    LOGGER.info("Making CoinGecko API request for currency: " + currencyName);
 
-        if (responseBody != null) {
-            Map<String, Object> image = (Map<String, Object>) responseBody.get("image");
-            Map<String, Object> marketData = (Map<String, Object>) responseBody.get("market_data");
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+    HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            CoinDto coinDto = new CoinDto();
-            coinDto.setId((String) responseBody.get("id"));
-            coinDto.setName((String) responseBody.get("name"));
-            coinDto.setSymbol((String) responseBody.get("symbol"));
-            coinDto.setImage((String) image.get("large"));
-            coinDto.setCurrentPrice(convertToDouble(((Map<String, Object>) marketData.get("current_price")).get("usd")));
-            coinDto.setMarketCap(convertToDouble(((Map<String, Object>) marketData.get("market_cap")).get("usd")));
-            coinDto.setMarketCapRank(convertToDouble((Integer) marketData.get("market_cap_rank")));
-            coinDto.setTotalVolume(convertToDouble(((Map<String, Object>) marketData.get("total_volume")).get("usd")));
-            coinDto.setHigh24h(convertToDouble(((Map<String, Object>) marketData.get("high_24h")).get("usd")));
-            coinDto.setLow24h(convertToDouble(((Map<String, Object>) marketData.get("low_24h")).get("usd")));
-            coinDto.setPriceChange24h(convertToDouble(marketData.get("price_change_24h")));
-            coinDto.setPriceChangePercentage24h(convertToDouble(marketData.get("price_change_percentage_24h")));
-            coinDto.setMarketCapChange24h(convertToDouble(marketData.get("market_cap_change_24h")));
-            coinDto.setMarketCapChangePercentage24h(convertToDouble(marketData.get("market_cap_change_percentage_24h")));
-            coinDto.setCirculatingSupply(convertToDouble(marketData.get("circulating_supply")));
-            coinDto.setTotalSupply(convertToDouble(marketData.get("total_supply")));
-
-            LOGGER.info("CoinGecko data for " + currencyName + ": " + new JSONObject(coinDto).toString());
-            return coinDto;
-        }
-        throw new Exception("Coin not found: " + currencyName);
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<Map> responseEntity;
+    try {
+        responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                Map.class
+        );
+    } catch (Exception e) {
+        throw new Exception("Failed to fetch data from CoinGecko for " + currencyName + ": " + e.getMessage());
     }
+
+    Map<String, Object> responseBody = responseEntity.getBody();
+
+    if (responseBody != null) {
+        Map<String, Object> image = (Map<String, Object>) responseBody.get("image");
+        Map<String, Object> marketData = (Map<String, Object>) responseBody.get("market_data");
+
+        CoinDto coinDto = new CoinDto();
+        coinDto.setId((String) responseBody.get("id"));
+        coinDto.setName((String) responseBody.get("name"));
+        coinDto.setSymbol((String) responseBody.get("symbol"));
+        coinDto.setImage((String) image.get("large"));
+        coinDto.setCurrentPrice(convertToDouble(((Map<String, Object>) marketData.get("current_price")).get("usd")));
+        coinDto.setMarketCap(convertToDouble(((Map<String, Object>) marketData.get("market_cap")).get("usd")));
+        coinDto.setMarketCapRank(convertToDouble((Integer) marketData.get("market_cap_rank")));
+        coinDto.setTotalVolume(convertToDouble(((Map<String, Object>) marketData.get("total_volume")).get("usd")));
+        coinDto.setHigh24h(convertToDouble(((Map<String, Object>) marketData.get("high_24h")).get("usd")));
+        coinDto.setLow24h(convertToDouble(((Map<String, Object>) marketData.get("low_24h")).get("usd")));
+        coinDto.setPriceChange24h(convertToDouble(marketData.get("price_change_24h")));
+        coinDto.setPriceChangePercentage24h(convertToDouble(marketData.get("price_change_percentage_24h")));
+        coinDto.setMarketCapChange24h(convertToDouble(marketData.get("market_cap_change_24h")));
+        coinDto.setMarketCapChangePercentage24h(convertToDouble(marketData.get("market_cap_change_percentage_24h")));
+        coinDto.setCirculatingSupply(convertToDouble(marketData.get("circulating_supply")));
+        coinDto.setTotalSupply(convertToDouble(marketData.get("total_supply")));
+
+        LOGGER.info("CoinGecko data for " + currencyName + ": " + new JSONObject(coinDto).toString());
+        return coinDto;
+    }
+
+    throw new Exception("Coin not found: " + currencyName);
+}
+
 
     public FunctionResponse getFunctionResponse(String prompt) {
         log.info("GEMINI API KEY: "+ geminiApiKey);
